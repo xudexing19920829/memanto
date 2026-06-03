@@ -1,11 +1,27 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.tools import tool
 from pydantic import Field
 
 from memanto.cli.client.sdk_client import SdkClient
+
+VALID_MEMORY_TYPES = (
+    "fact (objective truths/data), "
+    "preference (user likes/dislikes), "
+    "goal (objectives/targets), "
+    "decision (choices made/agreed upon), "
+    "artifact (files/code/deliverables), "
+    "learning (insights/lessons learned), "
+    "event (occurrences/meetings), "
+    "instruction (how-tos/directives), "
+    "relationship (connections between entities), "
+    "context (background info/state), "
+    "observation (trends/patterns/notices), "
+    "commitment (promises/next steps), "
+    "error (failures/mistakes)"
+)
 
 MemoryType = Literal[
     "fact",
@@ -25,23 +41,36 @@ MemoryType = Literal[
 
 
 def create_memanto_tools(client: SdkClient, agent_id: str):
+    import threading
+    import time
+    
+    _setup_lock = threading.Lock()
+
     def _do_setup():
-        try:
-            client.create_agent(agent_id=agent_id, pattern="tool")
-        except Exception:
-            pass
-        try:
-            client.activate_agent(agent_id, duration_hours=6)
-        except Exception:
-            pass
+        with _setup_lock:
+            try:
+                client.create_agent(agent_id=agent_id, pattern="tool")
+            except Exception:
+                pass
+            try:
+                client.activate_agent(agent_id, duration_hours=6)
+            except Exception:
+                pass
 
     @tool
     def memanto_remember(
-        memory_type: MemoryType,
-        title: str,
-        content: str,
-        confidence: float = Field(0.85, ge=0.0, le=1.0),
-        tags: str = Field("", description="Comma-separated tags"),
+        memory_type: Annotated[MemoryType, Field(
+            description=(
+                f"The semantic type of memory to store. Must be exactly one of the types "
+                f"(without the description): fact, preference, goal, decision, artifact, "
+                f"learning, event, instruction, relationship, context, observation, "
+                f"commitment, or error. Context definitions: {VALID_MEMORY_TYPES}"
+            )
+        )],
+        title: Annotated[str, Field(description="A short, descriptive title for the memory (max 100 chars).")],
+        content: Annotated[str, Field(description="The actual information or fact to remember.")],
+        confidence: Annotated[float, Field(ge=0.0, le=1.0, description="Confidence level in this memory (0.0 to 1.0).")] = 0.85,
+        tags: Annotated[str, Field(description="Optional comma-separated tags for filtering (e.g., 'user_pref, setup').")] = "",
     ) -> str:
         """
         Store a structured memory in Memanto for long-term persistence.
@@ -75,11 +104,9 @@ def create_memanto_tools(client: SdkClient, agent_id: str):
 
     @tool
     def memanto_recall(
-        query: str,
-        limit: int = Field(5, ge=1, le=20),
-        memory_types: str = Field(
-            "", description="Optional comma-separated types filter"
-        ),
+        query: Annotated[str, Field(description="The natural language search query.")],
+        limit: Annotated[int, Field(ge=1, le=20, description="Max number of memories to retrieve.")] = 5,
+        memory_types: Annotated[str, Field(description="Optional comma-separated types filter (e.g. 'fact,preference').")] = "",
     ) -> str:
         """
         Search Memanto's persistent memory using natural language.
@@ -120,7 +147,7 @@ def create_memanto_tools(client: SdkClient, agent_id: str):
         return "\n".join(output)
 
     @tool
-    def memanto_answer(question: str) -> str:
+    def memanto_answer(question: Annotated[str, Field(description="The question to ask the memory system.")]) -> str:
         """
         Ask a question and get an AI-generated answer grounded in the agent's long-term memory.
         Uses RAG to synthesize insights from multiple stored memories.
