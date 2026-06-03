@@ -4,13 +4,13 @@ LangGraph pipeline for the Research + Writer team with Memanto memory.
 
 from __future__ import annotations
 
-from typing import Dict, Any
+from typing import Any
 
-from langgraph.graph import StateGraph, END
-from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.graph import END, StateGraph
+from langgraph.prebuilt import ToolNode
 
-from .state import ResearchState
 from .nodes import research_agent_factory, writer_agent_factory
+from .state import ResearchState
 
 
 def build_research_graph(tools: list) -> StateGraph:
@@ -41,7 +41,7 @@ def build_research_graph(tools: list) -> StateGraph:
     graph.set_entry_point("research")
 
     # Routing from research
-    def research_router(state: Dict[str, Any]):
+    def research_router(state: dict[str, Any]):
         messages = state.get("messages", [])
         if not messages:
             return "writer"
@@ -51,14 +51,14 @@ def build_research_graph(tools: list) -> StateGraph:
         return "writer"
 
     graph.add_conditional_edges(
-        "research", 
-        research_router, 
-        {"research_tools": "research_tools", "writer": "writer"}
+        "research",
+        research_router,
+        {"research_tools": "research_tools", "writer": "writer"},
     )
     graph.add_edge("research_tools", "research")
 
     # Routing from writer
-    def writer_router(state: Dict[str, Any]):
+    def writer_router(state: dict[str, Any]):
         messages = state.get("messages", [])
         if not messages:
             return END
@@ -68,9 +68,7 @@ def build_research_graph(tools: list) -> StateGraph:
         return END
 
     graph.add_conditional_edges(
-        "writer", 
-        writer_router, 
-        {"writer_tools": "writer_tools", END: END}
+        "writer", writer_router, {"writer_tools": "writer_tools", END: END}
     )
     graph.add_edge("writer_tools", "writer")
 
@@ -88,7 +86,9 @@ def compile_graph(tools: list):
 # ---------------------------------------------------------------------------
 
 
-def run_research(topic: str, memanto_agent_id: str = "langgraph-research-team") -> Dict[str, Any]:
+def run_research(
+    topic: str, memanto_agent_id: str = "langgraph-research-team"
+) -> dict[str, Any]:
     """
     Run the full research → writer pipeline.
 
@@ -99,10 +99,12 @@ def run_research(topic: str, memanto_agent_id: str = "langgraph-research-team") 
     Returns:
         The final state after the graph completes.
     """
-    from core.memanto_tools import create_memanto_tools
-    from memanto.cli.client.sdk_client import SdkClient
     import os
-    
+
+    from core.memanto_tools import create_memanto_tools
+
+    from memanto.cli.client.sdk_client import SdkClient
+
     client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
     tools = create_memanto_tools(client, memanto_agent_id)
 
@@ -120,6 +122,7 @@ def run_research(topic: str, memanto_agent_id: str = "langgraph-research-team") 
 
 if __name__ == "__main__":
     import os
+
     from dotenv import load_dotenv
 
     load_dotenv()
@@ -127,7 +130,7 @@ if __name__ == "__main__":
     topic = os.getenv("RESEARCH_TOPIC", "AI agent framework market size and trends")
     agent_id = os.getenv("MEMANTO_AGENT_ID", "langgraph-research-team")
 
-    print(f"Running LangGraph + Memanto research pipeline...")
+    print("Running LangGraph + Memanto research pipeline...")
     print(f"Topic: {topic}")
     print(f"Memanto Agent ID: {agent_id}")
     print("---")

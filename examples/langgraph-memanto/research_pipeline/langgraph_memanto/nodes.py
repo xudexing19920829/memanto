@@ -8,14 +8,15 @@ the LangGraph pipeline via langgraph_memanto.graph.build_graph().
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Literal
-
-from langchain_openai import ChatOpenAI
-from langchain_core.tools import tool
-from dotenv import load_dotenv
+from typing import Any, Literal
 
 from core.memanto_tools import create_memanto_tools
+from dotenv import load_dotenv
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+
 from memanto.cli.client.sdk_client import SdkClient
+
 client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
 tools = create_memanto_tools(client, "research_agent")
 _memanto_remember = next(t for t in tools if t.name == "memanto_remember")
@@ -29,10 +30,10 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
 
 def _get_memanto_api_key() -> str:
-    '''Return the configured Memanto API key or fail with setup guidance.'''
+    """Return the configured Memanto API key or fail with setup guidance."""
     if not MOORCHEH_API_KEY:
         raise RuntimeError(
-            'MOORCHEH_API_KEY not set. Copy .env.example to .env and fill it in.'
+            "MOORCHEH_API_KEY not set. Copy .env.example to .env and fill it in."
         )
     return MOORCHEH_API_KEY
 
@@ -41,11 +42,14 @@ def _get_memanto_api_key() -> str:
 # LLM factory
 # ---------------------------------------------------------------------------
 
+
 def _get_llm():
     """Build a flexible ChatOpenAI model."""
     return ChatOpenAI(
         model=os.getenv("LLM_MODEL", "openai/gpt-4o-mini"),
-        api_key=os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY") or OPENROUTER_API_KEY,
+        api_key=os.getenv("OPENROUTER_API_KEY")
+        or os.getenv("OPENAI_API_KEY")
+        or OPENROUTER_API_KEY,
         base_url=os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1"),
         temperature=0.7,
     )
@@ -54,6 +58,7 @@ def _get_llm():
 # ---------------------------------------------------------------------------
 # LangChain Tool wrapper factory (enables actual tool calling by the LLM)
 # ---------------------------------------------------------------------------
+
 
 def _build_memanto_remember_tool(agent_id: str):
     """Build a LangChain-compatible tool bound to the current Memanto namespace."""
@@ -68,6 +73,7 @@ def _build_memanto_remember_tool(agent_id: str):
     ) -> str:
         """Store a structured memory in Memanto for later cross-session recall."""
         from memanto.cli.client.sdk_client import SdkClient
+
         client = SdkClient(api_key=_get_memanto_api_key())
         try:
             res = client.remember(
@@ -77,7 +83,7 @@ def _build_memanto_remember_tool(agent_id: str):
                 title=(title or "")[:100],
                 tags=tags or [],
                 source="langgraph-research",
-                confidence=float(confidence)
+                confidence=float(confidence),
             )
             return f"Successfully stored memory: {res.get('memory_id')}"
         except Exception as e:
@@ -90,6 +96,7 @@ def _build_memanto_remember_tool(agent_id: str):
 # Research Agent nodes
 # ---------------------------------------------------------------------------
 
+
 def research_agent_factory(tools: list):
     """
     Returns a node function for the Research Agent.
@@ -99,7 +106,7 @@ def research_agent_factory(tools: list):
     llm = _get_llm()
     llm_with_tools = llm.bind_tools(tools_to_bind)
 
-    def research_agent(state: Dict[str, Any]) -> Dict[str, Any]:
+    def research_agent(state: dict[str, Any]) -> dict[str, Any]:
         topic = state.get("research_topic", "")
         system_prompt = (
             f"You are a Senior Market Research Analyst specialized in '{topic}'.\n"
@@ -115,11 +122,13 @@ def research_agent_factory(tools: list):
             f"After storing memories, summarize what you found in 2-3 sentences."
         )
 
-        messages = [{"role": "system", "content": system_prompt}] + state.get("messages", [])
+        messages = [{"role": "system", "content": system_prompt}] + state.get(
+            "messages", []
+        )
         response = llm_with_tools.invoke(messages)
-        
+
         return {"messages": [response]}
-        
+
     return research_agent
 
 
@@ -132,7 +141,7 @@ def writer_agent_factory(tools: list):
     llm = _get_llm()
     llm_with_tools = llm.bind_tools(tools_to_bind)
 
-    def writer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
+    def writer_agent(state: dict[str, Any]) -> dict[str, Any]:
         topic = state.get("research_topic", "")
         synthesis_prompt = (
             f"You are a Technical Briefing Writer.\n"
@@ -146,23 +155,29 @@ def writer_agent_factory(tools: list):
         # Inject the system prompt and append the tool calls that the writer_agent might have already done in this loop
         # We need to filter out previous messages from the research agent to avoid confusing the writer,
         # OR just append a system message instructing the writer to begin its job.
-        
+
         writer_messages = []
         for msg in state.get("messages", []):
-            if hasattr(msg, "name") and msg.name in ("memanto_recall", "memanto_answer"):
+            if hasattr(msg, "name") and msg.name in (
+                "memanto_recall",
+                "memanto_answer",
+            ):
                 writer_messages.append(msg)
-            elif hasattr(msg, "tool_calls") and any(tc.get("name") in ("memanto_recall", "memanto_answer") for tc in msg.tool_calls):
+            elif hasattr(msg, "tool_calls") and any(
+                tc.get("name") in ("memanto_recall", "memanto_answer")
+                for tc in msg.tool_calls
+            ):
                 writer_messages.append(msg)
-        
+
         messages = [{"role": "system", "content": synthesis_prompt}] + writer_messages
         response = llm_with_tools.invoke(messages)
 
         return {"messages": [response]}
-        
+
     return writer_agent
 
 
-def should_continue(state: Dict[str, Any]) -> Literal["research", "writer", "end"]:
+def should_continue(state: dict[str, Any]) -> Literal["research", "writer", "end"]:
     """
     Routing logic: research → writer → end.
     """
@@ -170,14 +185,14 @@ def should_continue(state: Dict[str, Any]) -> Literal["research", "writer", "end
     if not messages:
         return "research"
     last = messages[-1]
-    
+
     # Check if last message is from the assistant (either object or dict)
     is_assistant = False
     if hasattr(last, "type") and last.type == "ai":
         is_assistant = True
     elif isinstance(last, dict) and last.get("role") == "assistant":
         is_assistant = True
-        
+
     if is_assistant:
         return "writer"
     return "end"

@@ -64,8 +64,7 @@ def session_1():
             ),
             (
                 "human",
-                "I also love dark mode for all my tools. "
-                "My timezone is PST.",
+                "I also love dark mode for all my tools. My timezone is PST.",
             ),
             (
                 "human",
@@ -101,8 +100,7 @@ def session_2():
         messages=[
             (
                 "human",
-                "Hey, I'm back! Still having that redirect issue. "
-                "Any updates?",
+                "Hey, I'm back! Still having that redirect issue. Any updates?",
             ),
         ],
         thread_id="alice-session-002",

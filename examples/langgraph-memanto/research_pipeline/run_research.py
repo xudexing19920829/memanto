@@ -15,7 +15,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
-
 from langgraph_memanto.graph import run_research
 
 load_dotenv()
@@ -29,7 +28,9 @@ TOPIC = os.getenv("RESEARCH_TOPIC", "AI agent framework market size and trends 2
 def main():
     if not MEMANTO_API_KEY or not OPENROUTER_API_KEY:
         print("ERROR: Missing API keys.")
-        print("Copy .env.example to .env and fill in MOORCHEH_API_KEY and OPENROUTER_API_KEY")
+        print(
+            "Copy .env.example to .env and fill in MOORCHEH_API_KEY and OPENROUTER_API_KEY"
+        )
         sys.exit(1)
 
     print(f"Research Agent analyzing: {TOPIC}")
@@ -40,7 +41,7 @@ def main():
     # and actually invokes it via tool calls (not plain-text instructions)
     result = run_research(topic=TOPIC, memanto_agent_id=AGENT_ID)
 
-    print(f"\n[Research Agent Complete]")
+    print("\n[Research Agent Complete]")
     print(f"Total messages: {len(result.get('messages', []))}")
     print(f"Findings stored: {len(result.get('findings', []))}")
 

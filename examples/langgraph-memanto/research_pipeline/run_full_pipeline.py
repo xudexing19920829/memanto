@@ -15,9 +15,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 
-warnings.filterwarnings("ignore", module="langgraph")
-
 from .langgraph_memanto.graph import run_research
+
+warnings.filterwarnings("ignore", module="langgraph")
 
 load_dotenv()
 
@@ -26,7 +26,7 @@ AGENT_ID = os.getenv("MEMANTO_AGENT_ID", "langgraph-research-team")
 
 
 def main():
-    print(f"Running full LangGraph + Memanto pipeline...")
+    print("Running full LangGraph + Memanto pipeline...")
     print(f"Topic: {TOPIC}")
     print(f"Memanto Agent ID: {AGENT_ID}")
     print("---")

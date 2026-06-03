@@ -2,7 +2,7 @@
 Shared LangGraph state schema for the LangGraph + Memanto example.
 """
 
-from typing import Annotated, List, TypedDict
+from typing import Annotated, TypedDict
 
 from langgraph.graph import add_messages
 
@@ -18,7 +18,7 @@ class ResearchState(TypedDict):
         findings: Key findings discovered during research.
     """
 
-    messages: Annotated[List[dict], add_messages]
+    messages: Annotated[list[dict], add_messages]
     memanto_agent_id: str
     research_topic: str
-    findings: List[str]
+    findings: list[str]

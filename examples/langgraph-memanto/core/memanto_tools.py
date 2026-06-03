@@ -23,8 +23,8 @@ MemoryType = Literal[
     "error",
 ]
 
-def create_memanto_tools(client: SdkClient, agent_id: str):
 
+def create_memanto_tools(client: SdkClient, agent_id: str):
     def _do_setup():
         try:
             client.create_agent(agent_id=agent_id, pattern="tool")
@@ -130,7 +130,7 @@ def create_memanto_tools(client: SdkClient, agent_id: str):
         except Exception:
             _do_setup()
             result = client.answer(agent_id=agent_id, question=question)
-            
+
         return f"Answer: {result.get('answer')}"
 
     return [memanto_remember, memanto_recall, memanto_answer]

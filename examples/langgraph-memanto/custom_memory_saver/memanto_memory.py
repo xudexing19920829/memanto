@@ -8,9 +8,7 @@ from a Memanto-powered long-term memory layer.
 from __future__ import annotations
 
 import os
-import json
-from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -21,9 +19,19 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 
 MEMORY_CATEGORIES = [
-    "instruction", "fact", "decision", "goal", "commitment",
-    "preference", "relationship", "context", "event", "learning",
-    "observation", "artifact", "error",
+    "instruction",
+    "fact",
+    "decision",
+    "goal",
+    "commitment",
+    "preference",
+    "relationship",
+    "context",
+    "event",
+    "learning",
+    "observation",
+    "artifact",
+    "error",
 ]
 
 MEMORY_TYPES_LITERAL = str  # one of the categories above
@@ -48,6 +56,7 @@ class MemantoMemory:
         base_url: str = "https://api.moorcheh.ai/v1",
     ):
         from memanto.cli.client.sdk_client import SdkClient
+
         self.api_key = api_key or os.getenv("MOORCHEH_API_KEY", "")
         self.agent_name = agent_name
         self.client = SdkClient(api_key=self.api_key)
@@ -95,7 +104,7 @@ class MemantoMemory:
             memory_type=memory_type,
             title="Observation",
             tags=tags,
-            source="custom_memory_saver"
+            source="custom_memory_saver",
         )
 
     def recall(
@@ -107,20 +116,17 @@ class MemantoMemory:
         """Search across stored memories and return relevant results."""
         types = [memory_type] if memory_type else None
         res = self.client.recall(
-            agent_id=self.agent_name,
-            query=query,
-            limit=limit,
-            type=types
+            agent_id=self.agent_name, query=query, limit=limit, type=types
         )
         # Convert to expected format
-        return [{"id": m.get("memory_id"), "text": m.get("content")} for m in res.get("memories", [])]
+        return [
+            {"id": m.get("memory_id"), "text": m.get("content")}
+            for m in res.get("memories", [])
+        ]
 
     def answer(self, question: str) -> str:
         """Ask a question grounded in stored memories (built-in RAG)."""
-        res = self.client.answer(
-            agent_id=self.agent_name,
-            question=question
-        )
+        res = self.client.answer(agent_id=self.agent_name, question=question)
         return res.get("answer", "")
 
     # -----------------------------------------------------------------------
@@ -137,24 +143,24 @@ class MemantoMemory:
         payload = []
         for text, memory_type, metadata in memories:
             tags = metadata.get("tags", []) if metadata else []
-            payload.append({
-                "content": text,
-                "type": memory_type,
-                "title": "Observation",
-                "tags": tags,
-                "source": "custom_memory_saver",
-                "confidence": 0.85
-            })
-            
-        return self.client.batch_remember(
-            agent_id=self.agent_name,
-            memories=payload
-        )
+            payload.append(
+                {
+                    "content": text,
+                    "type": memory_type,
+                    "title": "Observation",
+                    "tags": tags,
+                    "source": "custom_memory_saver",
+                    "confidence": 0.85,
+                }
+            )
+
+        return self.client.batch_remember(agent_id=self.agent_name, memories=payload)
 
 
 # ---------------------------------------------------------------------------
 # LangGraph integration helpers
 # ---------------------------------------------------------------------------
+
 
 def build_memory_context(memories: list[dict]) -> str:
     """Format recalled memories as a natural-language context block."""
@@ -167,9 +173,7 @@ def build_memory_context(memories: list[dict]) -> str:
         mtype = m.get("type", "unknown")
         conf = m.get("confidence", "N/A")
         ts = m.get("created_at", "")
-        lines.append(
-            f"  [{i}] ({mtype}, confidence={conf}) {text}"
-        )
+        lines.append(f"  [{i}] ({mtype}, confidence={conf}) {text}")
         if ts:
             lines[-1] += f"  [stored: {ts}]"
     return "\n".join(lines)
@@ -182,19 +186,23 @@ def extract_memories_from_tool_calls(state: dict) -> list[dict]:
     # Pull out user messages as observations
     for msg in state.get("messages", []):
         if hasattr(msg, "type") and msg.type == "human":
-            memories.append({
-                "text": f"User said: {msg.content[:500]}",
-                "type": "context",
-            })
+            memories.append(
+                {
+                    "text": f"User said: {msg.content[:500]}",
+                    "type": "context",
+                }
+            )
 
     # Pull out AI responses as learnings
     for msg in reversed(state.get("messages", [])):
         if hasattr(msg, "type") and msg.type == "ai" and msg.content:
             # Only store the first AI response we find (most recent)
-            memories.append({
-                "text": f"Agent responded: {msg.content[:500]}",
-                "type": "learning",
-            })
+            memories.append(
+                {
+                    "text": f"Agent responded: {msg.content[:500]}",
+                    "type": "learning",
+                }
+            )
             break
 
     return memories

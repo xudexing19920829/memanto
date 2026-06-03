@@ -24,7 +24,6 @@ VALID_MEMORY_TYPES = (
 
 
 def create_memanto_tools(client: SdkClient, agent_id: str):
-
     def _do_setup():
         try:
             client.create_agent(agent_id=agent_id, pattern="tool")
@@ -180,7 +179,7 @@ def create_memanto_tools(client: SdkClient, agent_id: str):
         question: str = Field(
             ...,
             description="A question to answer using RAG over the agent's stored memories.",
-        )
+        ),
     ) -> str:
         """
         Ask a question and get an AI-generated answer grounded in the agent's
@@ -193,7 +192,7 @@ def create_memanto_tools(client: SdkClient, agent_id: str):
         except Exception:
             _do_setup()
             result = client.answer(agent_id=agent_id, question=question)
-            
+
         answer = result.get("answer", "No answer could be generated.")
         sources = result.get("sources", [])
 

@@ -9,10 +9,8 @@ or real API keys.
 from __future__ import annotations
 
 import ast
-import fnmatch
 import os
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent
 PACKAGE = ROOT / "langgraph_memanto"
@@ -44,10 +42,8 @@ def _add_node_names(tree: ast.Module) -> set[str]:
         if not isinstance(node, ast.Call):
             continue
         func = node.func
-        is_add_node = (
-            isinstance(func, ast.Attribute) and func.attr == 'add_node'
-        ) or (
-            isinstance(func, ast.Name) and func.id == 'add_node'
+        is_add_node = (isinstance(func, ast.Attribute) and func.attr == "add_node") or (
+            isinstance(func, ast.Name) and func.id == "add_node"
         )
         if not is_add_node:
             continue
@@ -59,7 +55,7 @@ def _add_node_names(tree: ast.Module) -> set[str]:
             names.add(node.args[0].value)
         for keyword in node.keywords:
             if (
-                keyword.arg == 'name'
+                keyword.arg == "name"
                 and isinstance(keyword.value, ast.Constant)
                 and isinstance(keyword.value.value, str)
             ):
@@ -73,7 +69,7 @@ def _agent_id_default(path: Path) -> str | None:
         if not isinstance(node, ast.Assign):
             continue
         if not any(
-            isinstance(target, ast.Name) and target.id == 'AGENT_ID'
+            isinstance(target, ast.Name) and target.id == "AGENT_ID"
             for target in node.targets
         ):
             continue
@@ -81,7 +77,7 @@ def _agent_id_default(path: Path) -> str | None:
         if (
             isinstance(value, ast.Call)
             and isinstance(value.func, ast.Attribute)
-            and value.func.attr == 'getenv'
+            and value.func.attr == "getenv"
         ):
             if (
                 len(value.args) >= 2
@@ -162,12 +158,19 @@ def validate_cross_session_demo() -> None:
     writer = _read(ROOT / "run_writer.py")
     readme = _read(ROOT / "README.md").lower()
 
-    _assert("MEMANTO_AGENT_ID" in research, "run_research.py must share MEMANTO_AGENT_ID")
+    _assert(
+        "MEMANTO_AGENT_ID" in research, "run_research.py must share MEMANTO_AGENT_ID"
+    )
     _assert("MEMANTO_AGENT_ID" in writer, "run_writer.py must share MEMANTO_AGENT_ID")
     _assert("cross-session" in readme, "README should describe cross-session recall")
     _assert("demo.gif" in readme, "README should embed the 30-second GIF")
-    _assert("python run_research.py" in readme, "README should show research session command")
-    _assert("python run_writer.py" in readme, "README should show writer session command")
+    _assert(
+        "python run_research.py" in readme,
+        "README should show research session command",
+    )
+    _assert(
+        "python run_writer.py" in readme, "README should show writer session command"
+    )
 
 
 def validate_env_safety() -> None:
@@ -175,7 +178,9 @@ def validate_env_safety() -> None:
     gitignore = _read(ROOT / ".gitignore") if (ROOT / ".gitignore").exists() else ""
 
     _assert("MOORCHEH_API_KEY" in env_example, ".env.example missing MOORCHEH_API_KEY")
-    _assert("OPENROUTER_API_KEY" in env_example, ".env.example missing OPENROUTER_API_KEY")
+    _assert(
+        "OPENROUTER_API_KEY" in env_example, ".env.example missing OPENROUTER_API_KEY"
+    )
     _assert(".env" in gitignore, ".gitignore must exclude local .env files")
 
 

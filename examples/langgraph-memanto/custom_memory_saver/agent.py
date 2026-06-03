@@ -43,11 +43,11 @@ import logging
 import os
 from typing import Literal
 
+from core.memanto_tools import create_memanto_tools
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, MessagesState, StateGraph
-from core.memanto_tools import create_memanto_tools
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -117,10 +117,12 @@ def create_llm():
     llm = ChatOpenAI(
         model=os.environ.get("LLM_MODEL", "openai/gpt-4o-mini"),
         temperature=0,
-        api_key=os.environ.get("OPENROUTER_API_KEY") or os.environ.get("OPENAI_API_KEY"),
-        base_url=os.environ.get("OPENAI_API_BASE", "https://openrouter.ai/api/v1")
+        api_key=os.environ.get("OPENROUTER_API_KEY")
+        or os.environ.get("OPENAI_API_KEY"),
+        base_url=os.environ.get("OPENAI_API_BASE", "https://openrouter.ai/api/v1"),
     )
     from memanto.cli.client.sdk_client import SdkClient
+
     client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
     tools = create_memanto_tools(client, AGENT_NAME)
     return llm.bind_tools(tools)
@@ -145,6 +147,7 @@ def recall_memories(state: AgentState) -> AgentState:
     # Construct a search query from the user's message
     query = f"What do I know about the user based on: {last_message[:200]}"
     from memanto.cli.client.sdk_client import SdkClient
+
     client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
     tools = create_memanto_tools(client, AGENT_NAME)
     memanto_recall = next(t for t in tools if t.name == "memanto_recall")
@@ -199,6 +202,7 @@ def tool_node(state: AgentState) -> AgentState:
         logger.info(f"\n🔧 Calling Memanto tool: {tool_name}({arguments})")
 
         from memanto.cli.client.sdk_client import SdkClient
+
         client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
         tools = create_memanto_tools(client, AGENT_NAME)
 

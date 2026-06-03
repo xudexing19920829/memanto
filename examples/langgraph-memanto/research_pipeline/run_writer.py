@@ -12,12 +12,14 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import os
+
+from core.memanto_tools import create_memanto_tools
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
-from core.memanto_tools import create_memanto_tools
 from memanto.cli.client.sdk_client import SdkClient
-import os
+
 client = SdkClient(api_key=os.environ.get("MOORCHEH_API_KEY", ""))
 tools = create_memanto_tools(client, "research_agent")
 memanto_recall = next(t for t in tools if t.name == "memanto_recall")
@@ -34,7 +36,9 @@ TOPIC = os.getenv("RESEARCH_TOPIC", "AI agent framework market size and trends 2
 def main():
     if not MEMANTO_API_KEY or not OPENROUTER_API_KEY:
         print("ERROR: Missing API keys.")
-        print("Copy .env.example to .env and fill in MOORCHEH_API_KEY and OPENROUTER_API_KEY")
+        print(
+            "Copy .env.example to .env and fill in MOORCHEH_API_KEY and OPENROUTER_API_KEY"
+        )
         sys.exit(1)
 
     llm = ChatOpenAI(
@@ -44,25 +48,27 @@ def main():
         temperature=0.7,
     )
 
-    state = {"memanto_agent_id": AGENT_ID, "research_topic": TOPIC}
-
     print(f"Writer Agent retrieving memories for: {TOPIC}")
     print("---")
 
     # Recall memories
     print("\n[Step 1: Recalling memories from Memanto...]")
-    recall_result = memanto_recall.invoke({
-        "query": f"key findings about {TOPIC}",
-        "limit": 10,
-    })
+    recall_result = memanto_recall.invoke(
+        {
+            "query": f"key findings about {TOPIC}",
+            "limit": 10,
+        }
+    )
     recall_content = str(recall_result)
     print(f"Recall result:\n{recall_content}\n")
 
     # RAG answer
     print("[Step 2: Synthesizing via RAG...]")
-    answer_result = memanto_answer.invoke({
-        "question": f"Summarize all research findings about {TOPIC} in a clear executive briefing"
-    })
+    answer_result = memanto_answer.invoke(
+        {
+            "question": f"Summarize all research findings about {TOPIC} in a clear executive briefing"
+        }
+    )
     answer_content = str(answer_result)
     print(f"Answer:\n{answer_content}\n")
 
