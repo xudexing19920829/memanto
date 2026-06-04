@@ -473,6 +473,18 @@ async def answer(
             )
         )
 
+    # answer.generate is a cloud-only feature; refuse early on on-prem.
+    from memanto.app.clients.backend import Backend, parse_backend
+
+    if parse_backend(settings.MEMANTO_BACKEND) == Backend.ON_PREM:
+        raise HTTPException(
+            status_code=501,
+            detail=(
+                "answer is not available on the on-prem backend. "
+                "Switch with: memanto config backend cloud"
+            ),
+        )
+
     # Resolve defaults from settings
     limit = request.limit if request.limit is not None else settings.ANSWER_LIMIT
     CostGuard.validate_k_limit(limit)

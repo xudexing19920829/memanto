@@ -467,6 +467,14 @@ def answer(
     ),
 ):
     """Answer a question using RAG (Retrieval-Augmented Generation)."""
+    from memanto.app.clients.backend import Backend
+
+    if config_manager.get_backend() == Backend.ON_PREM:
+        _error(
+            "answer is not available on the on-prem backend.",
+            hint="Switch with: memanto config backend cloud",
+        )
+
     start = time.perf_counter()
     active_agent_id, active_session_token = config_manager.get_active_session()
 
