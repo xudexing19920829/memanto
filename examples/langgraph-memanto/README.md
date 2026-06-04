@@ -9,7 +9,7 @@ All examples share the core Memanto tools defined in core/memanto_tools.py.
 `bash
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env with your Memanto and OpenAI API keys
+# Edit .env with your Moorcheh and OpenAI API keys
 `
 
 ## Running the Examples
