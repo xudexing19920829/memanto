@@ -934,6 +934,414 @@
             letter-spacing: 0.5px;
         }
 
+        /* ── Connections ── */
+        .conn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .conn-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .conn-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .conn-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent), 0 8px 30px var(--accent-glow);
+        }
+
+        .conn-card.muted {
+            opacity: 0.55;
+        }
+
+        .conn-card .conn-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .conn-card .conn-id {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            letter-spacing: 0.5px;
+        }
+
+        .conn-card .conn-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .conn-card .conn-global {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .conn-card .conn-global.on {
+            color: var(--success);
+        }
+
+        .conn-card .conn-add {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .conn-card:hover .conn-add {
+            display: inline-flex;
+        }
+
+        .conn-card .conn-add:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .conn-section-label {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 18px 0 10px;
+        }
+
+        .conn-project-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+        }
+
+        .conn-project-row.missing {
+            border-color: rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .conn-project-path {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .conn-confirm {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin: 6px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Modal ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: min(540px, 90vw);
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 8px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .agent-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+
+        .agent-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: var(--radius-xs);
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: background 0.15s ease;
+        }
+
+        .agent-checkbox-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .agent-checkbox-row input {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .helper-text {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        /* ── Folder Browser ── */
+        .browser {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .browser-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-surface);
+            flex-wrap: wrap;
+        }
+
+        .browser-toolbar .browser-up {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: var(--radius-xs);
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .browser-toolbar .browser-up:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .browser-toolbar .browser-up:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .browser-quick {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .browser-quick-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            border-radius: var(--radius-xs);
+            padding: 3px 8px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .browser-quick-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .browser-crumbs {
+            padding: 6px 10px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-wrap: wrap;
+            word-break: break-all;
+        }
+
+        .browser-crumb {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .browser-crumb:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .browser-crumb-sep {
+            color: var(--text-dim);
+            margin: 0 2px;
+            user-select: none;
+        }
+
+        .browser-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .browser-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(26, 26, 37, 0.5);
+            transition: background 0.12s ease;
+        }
+
+        .browser-list-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .browser-list-item .folder-ico {
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        .browser-list-empty {
+            padding: 14px;
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+
+        /* ── Agent Logos ── */
+        .agent-logo {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .agent-logo img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .agent-logo .agent-letter {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            font-family: var(--font-mono);
+        }
+
+        .agent-logo.large {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+        }
+
+        .agent-logo.large img {
+            width: 22px;
+            height: 22px;
+        }
+
+        .agent-logo.large .agent-letter {
+            font-size: 15px;
+        }
+
+        .conn-card .conn-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 900px) {
             .sidebar {
@@ -1032,6 +1440,13 @@
                     </svg>
                     <span>Conflicts</span>
                     <span class="nav-badge" id="conflictBadge" style="display:none">0</span>
+                </button>
+                <button class="nav-item" data-page="connections">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                    </svg>
+                    <span>Connections</span>
                 </button>
                 <button class="nav-item" data-page="config">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1247,6 +1662,22 @@
                 </div>
             </section>
 
+            <!-- CONNECTIONS -->
+            <section class="page" id="page-connections">
+                <div class="page-header">
+                    <h2>Connections</h2>
+                    <p>Manage AI tools connected to Memanto</p>
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:18px">
+                    <button class="btn btn-primary btn-sm" onclick="openConnectModal()">+ Connect a Project</button>
+                    <button class="btn btn-secondary btn-sm" onclick="loadConnections()">Refresh</button>
+                </div>
+                <div id="connectionsGrid">
+                    <div class="loading-overlay"><span class="spinner"></span> Loading connections...</div>
+                </div>
+                <div id="connectionDetails"></div>
+            </section>
+
             <!-- CONFIG -->
             <section class="page" id="page-config">
                 <div class="page-header">
@@ -1297,7 +1728,7 @@
            ================================================================ */
 
         // State
-        const S = { config: null, agentId: null, token: null, apiKey: null, memories: [], charts: {} };
+        const S = { config: null, agentId: null, token: null, apiKey: null, memories: [], charts: {}, connections: [], activeConnection: null, cwd: '' };
 
         // API helper
         async function api(method, path, body) {
@@ -1370,6 +1801,7 @@
                 if (btn.dataset.page === 'config') loadConfig();
                 if (btn.dataset.page === 'dashboard') loadDashboard();
                 if (btn.dataset.page === 'conflicts') loadConflicts();
+                if (btn.dataset.page === 'connections') loadConnections();
             });
         });
 
@@ -2267,6 +2699,395 @@
                 cards.innerHTML = `<p style="color:var(--error);padding:20px">Failed to load analytics: ${e.message}</p>`;
             }
         }
+        // ================================================================
+        // CONNECTIONS
+        // ================================================================
+
+        // Each agent maps to a primary icon URL plus an automatic chain of
+        // fallbacks (DuckDuckGo favicons, then a letter avatar) that the
+        // helper wires up via the <img> onerror chain. Simple Icons covers
+        // the popular tools cleanly as monochrome vector marks; DDG favicons
+        // fill the gap for everything else with the real brand mark.
+        const AGENT_LOGOS = {
+            'claude-code':    { src: 'https://cdn.simpleicons.org/claude/d97757',          fallback: 'https://icons.duckduckgo.com/ip3/claude.ai.ico',           bg: '#1a0f0a', letter: 'C' },
+            'codex':          { src: 'https://icons.duckduckgo.com/ip3/chatgpt.com.ico',   fallback: 'https://icons.duckduckgo.com/ip3/openai.com.ico',         bg: '#FFFFFF', letter: 'C' },
+            'cursor':         { src: 'https://cdn.simpleicons.org/cursor/ffffff',          fallback: 'https://icons.duckduckgo.com/ip3/cursor.com.ico',         bg: '#0a0a0a', letter: 'C' },
+            'windsurf':       { src: 'https://cdn.simpleicons.org/windsurf/24a5da',        fallback: 'https://icons.duckduckgo.com/ip3/codeium.com.ico',        bg: '#0a1218', letter: 'W' },
+            'antigravity':    { src: 'https://icons.duckduckgo.com/ip3/google.com.ico',    fallback: null,                                                      bg: '#1a2230', letter: 'A' },
+            'gemini-cli':     { src: 'https://cdn.simpleicons.org/googlegemini/8e75b2',    fallback: 'https://icons.duckduckgo.com/ip3/gemini.google.com.ico',  bg: '#FFFFFF', letter: 'G' },
+            'cline':          { src: 'https://cdn.simpleicons.org/cline/06b6d4',           fallback: 'https://icons.duckduckgo.com/ip3/cline.bot.ico',          bg: '#0a1216', letter: 'C' },
+            'continue':       { src: 'https://icons.duckduckgo.com/ip3/continue.dev.ico',  fallback: null,                                                      bg: '#0a0a0a', letter: 'C' },
+            'opencode':       { src: 'https://icons.duckduckgo.com/ip3/opencode.ai.ico',   fallback: null,                                                      bg: '#0a0a0a', letter: 'O' },
+            'goose':          { src: 'https://icons.duckduckgo.com/ip3/goose-docs.ai.ico',     fallback: 'https://icons.duckduckgo.com/ip3/block.github.io.ico',    bg: '#FFFFFF', letter: 'G' },
+            'roo':            { src: 'https://icons.duckduckgo.com/ip3/roocode.com.ico',   fallback: null,                                                      bg: '#FFFFFF', letter: 'R' },
+            'github-copilot': { src: 'https://cdn.simpleicons.org/githubcopilot/ffffff',   fallback: 'https://icons.duckduckgo.com/ip3/github.com.ico',         bg: '#0a0a0a', letter: 'G' },
+            'augment':        { src: 'https://icons.duckduckgo.com/ip3/augmentcode.com.ico', fallback: null,                                                    bg: '#FFFFFF', letter: 'A' },
+        };
+
+        function agentLogo(name, large = false) {
+            const meta = AGENT_LOGOS[name] || { letter: (name[0] || '?').toUpperCase(), bg: '#55556a' };
+            const sizeClass = large ? ' large' : '';
+            const bg = meta.bg ? `background:${meta.bg};border-color:transparent` : '';
+            const letter = (meta.letter || (name[0] || '?').toUpperCase());
+            if (meta.src) {
+                // Onerror chain: primary src → fallback src → letter avatar.
+                // Inline JS keeps state via dataset.fallbackUsed.
+                const fallback = meta.fallback || '';
+                const onerr = `if(!this.dataset.fb && '${fallback}'){this.dataset.fb=1; this.src='${fallback}'} else {this.outerHTML='<span class=&quot;agent-letter&quot;>${letter}</span>'}`;
+                return `<span class="agent-logo${sizeClass}" style="${bg}"><img src="${meta.src}" alt="" loading="lazy" onerror="${onerr}"></span>`;
+            }
+            return `<span class="agent-logo${sizeClass}" style="${bg}"><span class="agent-letter">${letter}</span></span>`;
+        }
+
+        async function loadConnections() {
+            const grid = document.getElementById('connectionsGrid');
+            const details = document.getElementById('connectionDetails');
+            grid.innerHTML = '<div class="loading-overlay"><span class="spinner"></span> Loading connections...</div>';
+            details.innerHTML = '';
+            try {
+                const res = await api('GET', '/api/ui/connections');
+                S.connections = res.connections || [];
+                S.cwd = res.cwd || '';
+                renderConnectionsGrid();
+                if (S.activeConnection) {
+                    const stillThere = S.connections.find(c => c.name === S.activeConnection);
+                    if (stillThere) renderConnectionDetails(stillThere);
+                    else S.activeConnection = null;
+                }
+            } catch (e) {
+                grid.innerHTML = `<p style="color:var(--error);padding:20px">Failed to load connections: ${escHtml(e.message)}</p>`;
+            }
+        }
+
+        function renderConnectionsGrid() {
+            const grid = document.getElementById('connectionsGrid');
+            let html = '<div class="conn-grid">';
+            S.connections.forEach(c => {
+                const count = (c.projects || []).length;
+                const isMuted = count === 0 && !c.installed_global;
+                const isActive = S.activeConnection === c.name;
+                const projectsLabel = count === 1 ? '1 project' : `${count} projects`;
+                html += `<div class="conn-card${isActive ? ' active' : ''}${isMuted ? ' muted' : ''}" onclick="selectConnection('${escHtml(c.name)}')">
+                    <button class="conn-add" onclick="event.stopPropagation(); openConnectModal('${escHtml(c.name)}')" title="Connect this agent to a project">+</button>
+                    <div class="conn-name">${agentLogo(c.name, true)}<span>${escHtml(c.display_name)}</span></div>
+                    <div class="conn-id">${escHtml(c.name)}</div>
+                    <div class="conn-count">${projectsLabel}</div>
+                    <div class="conn-global${c.installed_global ? ' on' : ''}">${c.installed_global ? '✓ Global' : 'Global'}</div>
+                </div>`;
+            });
+            html += '</div>';
+            grid.innerHTML = html;
+        }
+
+        function selectConnection(name) {
+            const conn = S.connections.find(c => c.name === name);
+            if (!conn) return;
+            S.activeConnection = name;
+            renderConnectionsGrid();
+            renderConnectionDetails(conn);
+        }
+
+        function renderConnectionDetails(conn) {
+            const box = document.getElementById('connectionDetails');
+            const projects = conn.projects || [];
+
+            let projectsHtml;
+            if (projects.length === 0) {
+                projectsHtml = `<p style="color:var(--text-dim);font-size:13px;padding:10px 0">Not connected to any project yet.
+                    <a href="#" onclick="openConnectModal('${escHtml(conn.name)}');return false" style="color:var(--accent);text-decoration:none;margin-left:6px">Connect a project →</a></p>`;
+            } else {
+                projectsHtml = projects.map(p => {
+                    const missingTag = p.exists ? '' : ' <span class="badge badge-warning" style="margin-left:8px">missing</span>';
+                    const btnLabel = p.exists ? 'Disconnect' : 'Untrack';
+                    const safePath = escHtml(p.path).replace(/'/g, "&#39;");
+                    return `<div class="conn-project-row${p.exists ? '' : ' missing'}" id="proj-row-${btoa(unescape(encodeURIComponent(p.path))).replace(/=/g, '')}">
+                        <div>
+                            <div class="conn-project-path">${escHtml(p.path)}${missingTag}</div>
+                        </div>
+                        <button class="btn btn-sm btn-secondary" onclick="confirmDisconnect('${escHtml(conn.name)}', '${safePath}', false, this)">${btnLabel}</button>
+                    </div>`;
+                }).join('');
+            }
+
+            const globalHtml = conn.installed_global
+                ? `<div class="conn-project-row">
+                    <div class="conn-project-path">✓ Installed at ${escHtml(conn.skill_global_path)}</div>
+                    <button class="btn btn-sm btn-danger" onclick="confirmDisconnect('${escHtml(conn.name)}', null, true, this)">Remove Global</button>
+                </div>`
+                : `<p style="color:var(--text-dim);font-size:13px;padding:10px 0">Not installed globally.
+                    <a href="#" onclick="openConnectModalGlobal('${escHtml(conn.name)}');return false" style="color:var(--accent);text-decoration:none;margin-left:6px">Install globally →</a></p>`;
+
+            box.innerHTML = `<div class="panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:14px">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        ${agentLogo(conn.name, true)}
+                        <div>
+                            <div style="font-size:18px;font-weight:600;color:var(--text-primary)">${escHtml(conn.display_name)}</div>
+                            <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-dim);margin-top:2px">${escHtml(conn.name)}${conn.instruction_file ? ' · ' + escHtml(conn.instruction_file) : ''}${conn.supports_hooks ? ' · hooks supported' : ''}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="S.activeConnection=null; renderConnectionsGrid(); document.getElementById('connectionDetails').innerHTML=''">Close</button>
+                </div>
+
+                <div class="conn-section-label">Connected Projects</div>
+                ${projectsHtml}
+
+                <div class="conn-section-label">Global Install</div>
+                ${globalHtml}
+
+                <div class="conn-section-label">Memories from this connection</div>
+                <div id="connMemories"><div class="loading-overlay"><span class="spinner"></span> Loading memories...</div></div>
+            </div>`;
+
+            loadConnectionMemories(conn);
+        }
+
+        async function loadConnectionMemories(conn) {
+            const box = document.getElementById('connMemories');
+            if (!box) return;
+            if (!S.agentId || !S.token) {
+                box.innerHTML = '<p style="color:var(--text-dim);padding:12px 0;font-size:13px">No active Memanto agent. <a href="#" onclick="goToPage(\'agents\');return false" style="color:var(--accent);text-decoration:none">Activate one</a> to see memories from this connection.</p>';
+                return;
+            }
+            try {
+                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, { limit: 100 });
+                const all = res.memories || [];
+                const filtered = all.filter(m => sourceMatchesConnection(m.source, conn));
+                if (!filtered.length) {
+                    box.innerHTML = '<p style="color:var(--text-dim);padding:12px 0;font-size:13px">No memories from this connection yet.</p>';
+                    return;
+                }
+                box.innerHTML = `<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;font-family:var(--font-mono)">${filtered.length} memor${filtered.length === 1 ? 'y' : 'ies'} matched on source</div>` +
+                    `<div class="table-wrap">${buildMemoryTable(filtered, true)}</div>`;
+            } catch (e) {
+                box.innerHTML = `<p style="color:var(--error);padding:12px 0">Failed to load memories: ${escHtml(e.message)}</p>`;
+            }
+        }
+
+        function sourceMatchesConnection(source, conn) {
+            if (!source) return false;
+            const s = String(source).toLowerCase();
+            const candidates = [
+                conn.name.toLowerCase(),
+                conn.display_name.toLowerCase(),
+                conn.name.toLowerCase().replace(/-/g, ' '),
+                conn.name.toLowerCase().replace(/-/g, '_'),
+            ];
+            return candidates.some(c => s === c || s.includes(c));
+        }
+
+        // Connect modal
+        function openConnectModal(preselectAgent) {
+            const placeholder = S.cwd || '/absolute/path/to/project';
+            const agents = S.connections;
+            const checkboxes = agents.map(a => {
+                const checked = preselectAgent && preselectAgent === a.name ? 'checked' : '';
+                return `<label class="agent-checkbox-row">
+                    <input type="checkbox" name="connectAgent" value="${escHtml(a.name)}" ${checked}>
+                    ${agentLogo(a.name)}
+                    <span>${escHtml(a.display_name)}</span>
+                </label>`;
+            }).join('');
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-backdrop';
+            modal.id = 'connectModal';
+            modal.innerHTML = `<div class="modal" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Connect a Project</h3>
+                    <button class="modal-close" onclick="closeConnectModal()">×</button>
+                </div>
+                <div class="form-group">
+                    <label>Project Directory</label>
+                    <input id="connectPathInput" type="text" placeholder="${attrEsc(placeholder)}" value="${attrEsc(placeholder)}"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault(); browseTo(this.value)}">
+                    <div class="helper-text">Type or paste a path, or use the browser below. Hit Enter to navigate there.</div>
+                    <div id="folderBrowser" class="browser">
+                        <div class="loading-overlay" style="padding:16px"><span class="spinner"></span> Loading…</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Agents</label>
+                    <div style="display:flex;gap:8px;margin-bottom:8px">
+                        <button class="btn btn-sm btn-secondary" onclick="setAllConnectAgents(true)">Select all</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setAllConnectAgents(false)">Select none</button>
+                    </div>
+                    <div class="agent-checkbox-grid">${checkboxes}</div>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--text-secondary)">
+                        <input type="checkbox" id="connectGlobalToggle" onchange="toggleConnectGlobal()" style="width:auto;margin:0">
+                        Install globally (ignores project path; installs to ~/.&lt;agent&gt;/skills)
+                    </label>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+                    <button class="btn btn-secondary" onclick="closeConnectModal()">Cancel</button>
+                    <button class="btn btn-primary" id="connectInstallBtn" onclick="installSelected()">Install</button>
+                </div>
+            </div>`;
+            modal.addEventListener('click', e => { if (e.target === modal) closeConnectModal(); });
+            document.body.appendChild(modal);
+            setTimeout(() => document.getElementById('connectPathInput')?.focus(), 50);
+            browseTo(placeholder);
+        }
+
+        // Folder browser inside the connect modal — server-side via /api/ui/browse.
+        // All path-bearing controls use data-browse-path attrs + event delegation
+        // so Windows backslashes are not mangled by inline-onclick JS parsing.
+        function attrEsc(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function browseTo(path) {
+            const box = document.getElementById('folderBrowser');
+            if (!box) return;
+            box.innerHTML = '<div class="loading-overlay" style="padding:16px"><span class="spinner"></span> Loading…</div>';
+            try {
+                const qs = path ? ('?path=' + encodeURIComponent(path)) : '';
+                const data = await api('GET', '/api/ui/browse' + qs);
+                const input = document.getElementById('connectPathInput');
+                if (input) input.value = data.path || '';
+                renderBrowser(data);
+            } catch (e) {
+                console.error('browseTo failed:', e);
+                box.innerHTML = `<div class="browser-list-empty">Failed to browse: ${escHtml(e && e.message ? e.message : String(e))}</div>`;
+            }
+        }
+
+        function renderBrowser(data) {
+            const box = document.getElementById('folderBrowser');
+            if (!box) return;
+            const path = data.path || '';
+            const sep = path.includes('\\') ? '\\' : '/';
+            const isWin = sep === '\\';
+            const parts = path.split(/[\\\/]+/).filter(Boolean);
+
+            // Build cumulative path per crumb so clicking jumps to that level.
+            let acc = isWin ? '' : '/';
+            const crumbHtml = parts.map((p, i) => {
+                if (i === 0 && isWin) acc = p + sep;
+                else if (acc.endsWith(sep)) acc = acc + p;
+                else acc = acc + sep + p;
+                return `<a class="browser-crumb" data-browse-path="${attrEsc(acc)}">${escHtml(p)}</a>`;
+            }).join(`<span class="browser-crumb-sep">${escHtml(sep)}</span>`);
+
+            const quickHtml = (data.quick_paths || []).map(q =>
+                `<button class="browser-quick-btn" data-browse-path="${attrEsc(q.path)}">${escHtml(q.label)}</button>`
+            ).join('');
+
+            const upHtml = data.parent
+                ? `<button class="browser-up" data-browse-path="${attrEsc(data.parent)}">↑ Up</button>`
+                : `<button class="browser-up" disabled>↑ Up</button>`;
+
+            const list = (data.children && data.children.length)
+                ? data.children.map(c =>
+                    `<div class="browser-list-item" data-browse-path="${attrEsc(c.path)}">
+                        <span class="folder-ico">📁</span>
+                        <span>${escHtml(c.name)}</span>
+                    </div>`
+                ).join('')
+                : '<div class="browser-list-empty">No subfolders here</div>';
+
+            box.innerHTML = `
+                <div class="browser-toolbar">${upHtml}<div class="browser-quick">${quickHtml}</div></div>
+                <div class="browser-crumbs">${crumbHtml || '<span style="color:var(--text-dim)">(root)</span>'}</div>
+                <div class="browser-list">${list}</div>
+            `;
+
+            // Attach handlers via delegation — paths come from dataset (safe).
+            box.querySelectorAll('[data-browse-path]').forEach(el => {
+                el.addEventListener('click', () => browseTo(el.dataset.browsePath));
+            });
+        }
+
+        function openConnectModalGlobal(agentName) {
+            openConnectModal(agentName);
+            setTimeout(() => {
+                const tog = document.getElementById('connectGlobalToggle');
+                if (tog) { tog.checked = true; toggleConnectGlobal(); }
+            }, 60);
+        }
+
+        function closeConnectModal() {
+            const m = document.getElementById('connectModal');
+            if (m) m.remove();
+        }
+
+        function setAllConnectAgents(checked) {
+            document.querySelectorAll('input[name="connectAgent"]').forEach(cb => { cb.checked = checked; });
+        }
+
+        function toggleConnectGlobal() {
+            const isGlobal = document.getElementById('connectGlobalToggle').checked;
+            const pathInput = document.getElementById('connectPathInput');
+            pathInput.disabled = isGlobal;
+            pathInput.style.opacity = isGlobal ? '0.4' : '1';
+        }
+
+        async function installSelected() {
+            const agents = [...document.querySelectorAll('input[name="connectAgent"]:checked')].map(cb => cb.value);
+            if (!agents.length) { toast('Pick at least one agent', 'error'); return; }
+            const isGlobal = document.getElementById('connectGlobalToggle').checked;
+            const projectDir = document.getElementById('connectPathInput').value.trim();
+            if (!isGlobal && !projectDir) { toast('Project path is required', 'error'); return; }
+
+            const btn = document.getElementById('connectInstallBtn');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Installing...';
+            try {
+                const res = await api('POST', '/api/ui/connections/install', {
+                    agents, project_dir: isGlobal ? null : projectDir, is_global: isGlobal
+                });
+                (res.results || []).forEach(r => {
+                    const label = (S.connections.find(c => c.name === r.agent)?.display_name) || r.agent;
+                    if (r.errors && r.errors.length) {
+                        toast(`${label}: ${r.errors.join('; ')}`, 'error');
+                    } else {
+                        const steps = (r.steps || []).length;
+                        toast(`${label}: installed (${steps} step${steps === 1 ? '' : 's'})`);
+                    }
+                });
+                closeConnectModal();
+                loadConnections();
+            } catch (e) {
+                toast('Install failed: ' + e.message, 'error');
+                btn.disabled = false; btn.innerHTML = 'Install';
+            }
+        }
+
+        // Disconnect with inline confirmation
+        function confirmDisconnect(agentName, projectDir, isGlobal, triggerBtn) {
+            const row = triggerBtn.closest('.conn-project-row');
+            if (!row || row.querySelector('.conn-confirm-inline')) return;
+            const label = isGlobal ? 'global install' : projectDir;
+            const confirmRow = document.createElement('div');
+            confirmRow.className = 'conn-confirm conn-confirm-inline';
+            confirmRow.innerHTML = `<span>Remove Memanto from <strong>${escHtml(label)}</strong>?</span>
+                <button class="btn btn-sm btn-danger" id="confirmYesBtn">Confirm</button>
+                <button class="btn btn-sm btn-secondary" id="confirmNoBtn">Cancel</button>`;
+            row.parentNode.insertBefore(confirmRow, row.nextSibling);
+            confirmRow.querySelector('#confirmNoBtn').onclick = () => confirmRow.remove();
+            confirmRow.querySelector('#confirmYesBtn').onclick = async () => {
+                confirmRow.querySelector('#confirmYesBtn').disabled = true;
+                confirmRow.querySelector('#confirmYesBtn').innerHTML = '<span class="spinner"></span>';
+                try {
+                    const body = { agent: agentName, is_global: isGlobal };
+                    if (!isGlobal) body.project_dir = projectDir;
+                    const res = await api('POST', '/api/ui/connections/uninstall', body);
+                    const r = res.result || {};
+                    if (r.errors && r.errors.length) {
+                        toast(`${agentName}: ${r.errors.join('; ')}`, 'error');
+                    } else {
+                        toast(`${agentName}: disconnected`);
+                    }
+                    loadConnections();
+                } catch (e) {
+                    toast('Disconnect failed: ' + e.message, 'error');
+                    confirmRow.remove();
+                }
+            };
+        }
+
         // Poll server health to auto-close window if terminal stops
         setInterval(async () => {
             try {

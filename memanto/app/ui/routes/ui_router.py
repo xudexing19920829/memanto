@@ -16,6 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from memanto.app.config import settings
 from memanto.cli.client.direct_client import DirectClient
 from memanto.cli.config.manager import ConfigManager
+from memanto.cli.connect.agent_registry import AGENT_REGISTRY, list_agents
+from memanto.cli.connect.engine import install_agent, remove_agent
 
 router = APIRouter()
 
@@ -223,6 +225,184 @@ async def resolve_conflict(body: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/api/ui/connections")
+async def get_connections():
+    """List all supported agents merged with the local connections registry.
+
+    Returns the agent catalog from `agent_registry`, each enriched with what's
+    been installed (per registry at `~/.memanto/connections.json`).
+    """
+    registry = _config_manager.load_connections()
+    items: list[dict] = []
+    for agent in list_agents():
+        entry = registry.get(agent.name, {})
+        raw_projects = entry.get("projects", []) if isinstance(entry, dict) else []
+        projects = []
+        for p in raw_projects:
+            path_obj = Path(p)
+            projects.append(
+                {
+                    "path": p,
+                    "name": path_obj.name or p,
+                    "exists": path_obj.exists() and path_obj.is_dir(),
+                }
+            )
+        items.append(
+            {
+                "name": agent.name,
+                "display_name": agent.display_name,
+                "instruction_file": agent.instruction_file,
+                "skill_local_template": (
+                    f"{agent.skill_local_dir}/memanto"
+                    if agent.skill_local_dir
+                    else ".agents/skills/memanto"
+                ),
+                "skill_global_path": (
+                    f"{agent.skill_global_dir}/memanto"
+                    if agent.skill_global_dir
+                    else "~/.agents/skills/memanto"
+                ),
+                "supports_hooks": agent.supports_hooks,
+                "installed_global": bool(entry.get("installed_global"))
+                if isinstance(entry, dict)
+                else False,
+                "projects": projects,
+            }
+        )
+    return {"cwd": str(Path.cwd()), "connections": items}
+
+
+@router.get("/api/ui/browse")
+async def browse_path(path: str | None = None):
+    """List subdirectories of a given path (server-side folder picker).
+
+    Defaults to the user's home directory when ``path`` is missing or invalid.
+    Returns child directories only (alphabetical), plus a few quick-path
+    shortcuts and the parent path so the UI can build a breadcrumb / up-nav.
+    """
+    home = Path.home()
+    target = Path(path).expanduser() if path else home
+    try:
+        target = target.resolve()
+    except (OSError, RuntimeError):
+        target = home
+
+    if not target.exists() or not target.is_dir():
+        target = home
+
+    children: list[dict] = []
+    try:
+        for entry in sorted(target.iterdir(), key=lambda p: p.name.lower()):
+            try:
+                if entry.is_dir():
+                    children.append(
+                        {"name": entry.name, "path": str(entry), "is_dir": True}
+                    )
+            except OSError:
+                continue
+    except PermissionError:
+        children = []
+    except OSError:
+        children = []
+
+    quick: list[dict] = []
+    for label, p in [
+        ("Home", home),
+        ("Desktop", home / "Desktop"),
+        ("Documents", home / "Documents"),
+        ("CWD", Path.cwd()),
+    ]:
+        if p.exists() and p.is_dir():
+            quick.append({"label": label, "path": str(p)})
+
+    try:
+        parent = str(target.parent) if target.parent != target else None
+    except OSError:
+        parent = None
+
+    return {
+        "path": str(target),
+        "parent": parent,
+        "exists": True,
+        "is_dir": True,
+        "children": children,
+        "quick_paths": quick,
+    }
+
+
+@router.post("/api/ui/connections/install")
+async def connections_install(body: dict):
+    """Install MEMANTO integration for one or more agents at a given location.
+
+    Body: {"agents": ["claude-code", ...], "project_dir": "/abs/path", "is_global": false}
+    """
+    agents = body.get("agents") or []
+    if not isinstance(agents, list) or not agents:
+        raise HTTPException(status_code=400, detail="`agents` must be a non-empty list")
+    is_global = bool(body.get("is_global", False))
+    project_dir = body.get("project_dir") or "."
+
+    unknown = [a for a in agents if a not in AGENT_REGISTRY]
+    if unknown:
+        raise HTTPException(
+            status_code=400, detail=f"Unknown agent(s): {', '.join(unknown)}"
+        )
+
+    if not is_global:
+        if not project_dir:
+            raise HTTPException(
+                status_code=400, detail="`project_dir` is required when not global"
+            )
+        path_obj = Path(project_dir).expanduser()
+        if not path_obj.exists() or not path_obj.is_dir():
+            raise HTTPException(
+                status_code=400,
+                detail=f"project_dir does not exist or is not a directory: {project_dir}",
+            )
+        project_dir = str(path_obj.resolve())
+
+    results = [install_agent(name, project_dir, is_global) for name in agents]
+    return {"results": results}
+
+
+@router.post("/api/ui/connections/uninstall")
+async def connections_uninstall(body: dict):
+    """Remove MEMANTO integration for a single agent at a given location.
+
+    Body: {"agent": "claude-code", "project_dir": "/abs/path", "is_global": false}
+
+    Stale entries (project_dir gone) are handled registry-only.
+    """
+    agent_name = body.get("agent")
+    if not agent_name or agent_name not in AGENT_REGISTRY:
+        raise HTTPException(status_code=400, detail=f"Unknown agent: {agent_name}")
+    is_global = bool(body.get("is_global", False))
+    project_dir = body.get("project_dir")
+
+    if not is_global:
+        if not project_dir:
+            raise HTTPException(
+                status_code=400, detail="`project_dir` is required when not global"
+            )
+        path_obj = Path(project_dir).expanduser()
+        if not path_obj.exists():
+            # Stale registry entry — clean it up without touching disk.
+            _config_manager.remove_connection(
+                agent_name, str(path_obj), is_global=False
+            )
+            return {
+                "result": {
+                    "agent": agent_name,
+                    "steps": ["Untracked stale entry (folder no longer exists)"],
+                    "errors": [],
+                }
+            }
+        project_dir = str(path_obj.resolve())
+
+    result = remove_agent(agent_name, project_dir or ".", is_global)
+    return {"result": result}
+
+
 @router.post("/api/ui/shutdown")
 async def shutdown_server(background_tasks: BackgroundTasks):
     """
@@ -251,12 +431,19 @@ def get_ui_router():
 def mount_ui_static(app):
     """Mount the static files directory for serving the UI SPA."""
     if STATIC_DIR.exists():
-        # Serve index.html for the /ui root
+        # Serve index.html for the /ui root. No-store so the browser always
+        # picks up the latest UI without a hard refresh after upgrades.
         @app.get("/ui", response_class=HTMLResponse, include_in_schema=False)
         async def serve_ui():
             index_path = STATIC_DIR / "index.html"
             if index_path.exists():
-                return FileResponse(index_path)
+                return FileResponse(
+                    index_path,
+                    headers={
+                        "Cache-Control": "no-store, no-cache, must-revalidate",
+                        "Pragma": "no-cache",
+                    },
+                )
             raise HTTPException(status_code=404, detail="UI not found")
 
         # Mount static assets (CSS, JS, images) under /ui/static

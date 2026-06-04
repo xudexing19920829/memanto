@@ -4,9 +4,11 @@ MEMANTO CLI Configuration Manager
 Handles configuration persistence:
   - API key: stored in ~/.memanto/.env (sensitive, not committed)
   - Other config: stored in ~/.memanto/config.yaml (non-sensitive)
+  - Connections registry: stored in ~/.memanto/connections.json
 """
 
 import importlib
+import json
 import os
 from pathlib import Path
 
@@ -27,6 +29,7 @@ class ConfigManager:
         self.config_dir = config_dir or Path.home() / ".memanto"
         self.config_file = self.config_dir / "config.yaml"
         self.env_file = self.config_dir / ".env"
+        self.connections_file = self.config_dir / "connections.json"
 
         # Ensure config directory exists
         self.config_dir.mkdir(parents=True, exist_ok=True)
@@ -255,3 +258,59 @@ class ConfigManager:
         data["cli"]["interactive_mode"] = interactive_mode
         data["cli"]["smart_parse"] = smart_parse
         self.save_yaml(data)
+
+    # Connections registry — tracks which agents have memanto installed where.
+    # Forward-only: only updated by future install/remove calls, not backfilled.
+
+    def load_connections(self) -> dict:
+        """Load the connections registry from ~/.memanto/connections.json."""
+        if not self.connections_file.exists():
+            return {}
+        try:
+            with open(self.connections_file, encoding="utf-8") as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def _save_connections(self, data: dict) -> None:
+        """Atomically write the connections registry."""
+        tmp = self.connections_file.with_suffix(".json.tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, sort_keys=True)
+        os.replace(tmp, self.connections_file)
+        try:
+            self.connections_file.chmod(0o600)
+        except OSError:
+            pass
+
+    def add_connection(
+        self, agent_name: str, project_dir: str | None, is_global: bool
+    ) -> None:
+        """Record that ``agent_name`` was installed at ``project_dir`` (or globally)."""
+        data = self.load_connections()
+        entry = data.setdefault(agent_name, {"projects": [], "installed_global": False})
+        if is_global:
+            entry["installed_global"] = True
+        elif project_dir:
+            abs_path = str(Path(project_dir).resolve())
+            if abs_path not in entry["projects"]:
+                entry["projects"].append(abs_path)
+        self._save_connections(data)
+
+    def remove_connection(
+        self, agent_name: str, project_dir: str | None, is_global: bool
+    ) -> None:
+        """Inverse of ``add_connection``."""
+        data = self.load_connections()
+        if agent_name not in data:
+            return
+        entry = data[agent_name]
+        if is_global:
+            entry["installed_global"] = False
+        elif project_dir:
+            abs_path = str(Path(project_dir).resolve())
+            entry["projects"] = [p for p in entry.get("projects", []) if p != abs_path]
+        if not entry.get("projects") and not entry.get("installed_global"):
+            del data[agent_name]
+        self._save_connections(data)
