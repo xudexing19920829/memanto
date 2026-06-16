@@ -91,12 +91,12 @@ class MetricResult:
 # ─── Memanto REST Client ────────────────────────────────────────────────────
 
 class MemantoClient:
-    BASE_URL = "https://api.moorcheh.ai/v2"
+    BASE_URL = "http://localhost:8000/api/v2"
 
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.headers = {
-            "Authorization": f"Bearer {api_key}",
+            # "Authorization": f"Bearer {api_key}",  # Not needed for local
             "Content-Type": "application/json",
         }
         self.agent_id = f"bench-{RUN_ID}"
@@ -503,3 +503,16 @@ def generate_report(results: list) -> str:
 
 if __name__ == "__main__":
     run_benchmark()
+
+# Add p95 calculation function
+def percentile(data, p):
+    """Calculate pth percentile of data."""
+    if not data:
+        return 0
+    sorted_data = sorted(data)
+    k = (len(sorted_data) - 1) * p / 100
+    f = int(k)
+    c = f + 1
+    if c >= len(sorted_data):
+        return sorted_data[-1]
+    return sorted_data[f] + (k - f) * (sorted_data[c] - sorted_data[f])
